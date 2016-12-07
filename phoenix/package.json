@@ -1,0 +1,27 @@
+{
+  "name": "phoenix",
+  "version": "1.0.0",
+  "description": "",
+  "main": "phoenix.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-cli": "^6.18.0",
+    "babel-preset-es2015-allow-top-level-this": "0.0.1",
+    "babel-preset-latest": "^6.16.0",
+    "eslint": "^3.11.1",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^2.2.0",
+    "eslint-plugin-react": "^6.8.0",
+    "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
+    "load-grunt-config": "^0.19.2",
+    "load-grunt-tasks": "^3.5.2"
+  }
+}
