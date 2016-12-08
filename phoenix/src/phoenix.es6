@@ -85,44 +85,26 @@ class ChainWindow {
     return this;
   }
 
-  // TODO :: REFACTOR
+  // Move window by factor
   move(factor) {
     const difference = this.difference();
-    if (factor.width != null) {
-      const step = this.parent.width * factor.width;
-      // left & right
-      if (step < 0) {
-        if (this.frame.x + step < this.parent.x + this.margin) {
-          this.frame.x = this.parent.x + this.margin;
-        } else {
-          this.frame.x += step;
-        }
-      }
-      if (step > 0) {
-        if (this.frame.x + this.frame.width + step > this.parent.width - this.margin) {
-          this.frame.x = (this.parent.x + difference.width) - this.margin;
-        } else {
-          this.frame.x += step;
-        }
-      }
-    }
-    if (factor.height != null) {
-      const step = this.parent.height * factor.height;
-      // top & bottom
-      if (step < 0) {
-        if (this.frame.y + step < this.parent.y + this.margin) {
-          this.frame.y = this.parent.y + this.margin;
-        } else {
-          this.frame.y += step;
-        }
-      }
-      if (step > 0) {
-        if (this.frame.y + this.frame.height + step > this.parent.height - this.margin) {
-          this.frame.y = (this.parent.y + difference.height) - this.margin;
-        } else {
-          this.frame.y += step;
-        }
-      }
+    const [stepX, stepY] = [this.parent.width * factor.width || 0, // default to 0
+      this.parent.height * factor.height || 0];
+    // a single move can never occur in both dimensions -> addition is safe
+    switch (Math.sign(stepX + stepY)) {
+      case -1: // move left or up
+        this.frame.x = Math.max(this.frame.x + stepX,
+                              this.parent.x + this.margin);
+        this.frame.y = Math.max(this.frame.y + stepY,
+                                this.parent.y + this.margin);
+        break;
+      case 1: // move right or down
+        this.frame.x = Math.min(this.frame.x + stepX,
+                              (this.parent.x + difference.width) - this.margin);
+        this.frame.y = Math.min(this.frame.y + stepY,
+                              (this.parent.y + difference.height) - this.margin);
+        break;
+      default:
     }
     return this;
   }
