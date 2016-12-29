@@ -22,6 +22,7 @@ class ChainWindow {
     this.window = window1;
     this.margin = margin;
     this.frame = this.window.frame();
+    this.spaces = this.window.spaces();
     this.parent = this.window.screen().flippedVisibleFrame();
   }
 
@@ -45,6 +46,18 @@ class ChainWindow {
   // Move to screen
   screen(screen) {
     this.parent = screen.flippedVisibleFrame();
+    return this;
+  }
+
+  // Move window to space
+  space(space) {
+    const allSpaces = Space.all();
+    const normalSpaces = allSpaces.filter(value => value.isNormal());
+    if (space <= normalSpaces.length) {
+      const targetSpace = normalSpaces[space - 1];
+      allSpaces.map(s => s.removeWindows([this.window]));
+      targetSpace.addWindows([this.window]);
+    }
     return this;
   }
 
@@ -186,6 +199,11 @@ Window.prototype.fill = function winFill(direction, screen) {
   return window;
 };
 
+Window.prototype.moveToSpace = function winToSpace(space) {
+  const window = this.chain();
+  return window.space(space).set();
+};
+
 // Resize by factor
 Window.prototype.resize = function winResize(factor) {
   return this.chain().resize(factor).set();
@@ -206,6 +224,10 @@ Window.prototype.halveVertically = function winFoldVert() {
 
 function guard(value, transform) {
   return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+}
+
+for (let i = 1; i <= 9; i += 1) {
+  Key.on(`${i}`, CONTROL_SHIFT, () => guard(Window.focused(), x => x.moveToSpace(i)));
 }
 
 Key.on('e', CONTROL_SHIFT, () => guard(Window.focused(), x => x.halve()));

@@ -31,6 +31,7 @@ var ChainWindow = function () {
     this.window = window1;
     this.margin = margin;
     this.frame = this.window.frame();
+    this.spaces = this.window.spaces();
     this.parent = this.window.screen().flippedVisibleFrame();
   }
 
@@ -64,6 +65,25 @@ var ChainWindow = function () {
     key: 'screen',
     value: function screen(_screen) {
       this.parent = _screen.flippedVisibleFrame();
+      return this;
+    }
+  }, {
+    key: 'space',
+    value: function space(_space) {
+      var _this = this;
+
+      var allSpaces = Space.all();
+      var normalSpaces = allSpaces.filter(function (value) {
+        return value.isNormal();
+      });
+      if (_space <= normalSpaces.length) {
+        var targetSpace = normalSpaces[_space - 1];
+        // Space.active().removeWindows([this.window]);
+        allSpaces.map(function (s) {
+          return s.removeWindows([_this.window]);
+        });
+        targetSpace.addWindows([this.window]);
+      }
       return this;
     }
 
@@ -242,6 +262,11 @@ Window.prototype.fill = function winFill(direction, screen) {
   return window;
 };
 
+Window.prototype.moveToSpace = function winToSpace(space) {
+  var window = this.chain();
+  return window.space(space).set();
+};
+
 // Resize by factor
 Window.prototype.resize = function winResize(factor) {
   return this.chain().resize(factor).set();
@@ -261,6 +286,18 @@ Window.prototype.halveVertically = function winFoldVert() {
 
 function guard(value, transform) {
   return typeof value !== 'undefined' && value !== null ? transform(value) : undefined;
+}
+
+var _loop = function _loop(i) {
+  Key.on('' + i, CONTROL_SHIFT, function () {
+    return guard(Window.focused(), function (x) {
+      return x.moveToSpace(i);
+    });
+  });
+};
+
+for (var i = 1; i <= 9; i += 1) {
+  _loop(i);
 }
 
 Key.on('e', CONTROL_SHIFT, function () {

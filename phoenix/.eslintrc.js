@@ -7,7 +7,8 @@ module.exports = {
         "import"
     ],
     "globals": {
-    	"Window": true,
-    	"Key": true
+        "Window": true,
+        "Key": true,
+        "Space": true
     }
 };
