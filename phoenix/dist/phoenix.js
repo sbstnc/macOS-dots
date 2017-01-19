@@ -31,7 +31,6 @@ var ChainWindow = function () {
     this.window = window1;
     this.margin = margin;
     this.frame = this.window.frame();
-    this.spaces = this.window.spaces();
     this.parent = this.window.screen().flippedVisibleFrame();
   }
 
@@ -67,22 +66,26 @@ var ChainWindow = function () {
       this.parent = _screen.flippedVisibleFrame();
       return this;
     }
+
+    // Move window to space
+
   }, {
     key: 'space',
     value: function space(_space) {
       var _this = this;
 
       var allSpaces = Space.all();
-      var normalSpaces = allSpaces.filter(function (value) {
-        return value.isNormal();
+      var normalSpaces = allSpaces.filter(function (s) {
+        return s.isNormal();
       });
       if (_space <= normalSpaces.length) {
         var targetSpace = normalSpaces[_space - 1];
-        // Space.active().removeWindows([this.window]);
+        var targetScreen = targetSpace.screens()[0];
         allSpaces.map(function (s) {
           return s.removeWindows([_this.window]);
         });
         targetSpace.addWindows([this.window]);
+        this.screen(targetScreen);
       }
       return this;
     }

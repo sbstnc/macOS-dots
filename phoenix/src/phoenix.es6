@@ -22,7 +22,6 @@ class ChainWindow {
     this.window = window1;
     this.margin = margin;
     this.frame = this.window.frame();
-    this.spaces = this.window.spaces();
     this.parent = this.window.screen().flippedVisibleFrame();
   }
 
@@ -52,11 +51,13 @@ class ChainWindow {
   // Move window to space
   space(space) {
     const allSpaces = Space.all();
-    const normalSpaces = allSpaces.filter(value => value.isNormal());
+    const normalSpaces = allSpaces.filter(s => s.isNormal());
     if (space <= normalSpaces.length) {
       const targetSpace = normalSpaces[space - 1];
+      const targetScreen = targetSpace.screens()[0];
       allSpaces.map(s => s.removeWindows([this.window]));
       targetSpace.addWindows([this.window]);
+      this.screen(targetScreen);
     }
     return this;
   }
