@@ -6,6 +6,11 @@ module.exports = {
         "jsx-a11y",
         "import"
     ],
+    "rules": {
+        "no-mixed-operators": [
+            "off", {"allowSamePrecedence": false},
+        ],
+    },
     "globals": {
         "Window": true,
         "Key": true,

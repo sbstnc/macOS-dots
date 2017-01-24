@@ -57,7 +57,22 @@ class ChainWindow {
       const targetScreen = targetSpace.screens()[0];
       allSpaces.map(s => s.removeWindows([this.window]));
       targetSpace.addWindows([this.window]);
+
+      const oldScreenRect = this.window.screen().visibleFrameInRectangle();
+      const newScreenRect = targetScreen.visibleFrameInRectangle();
+      const xRatio = newScreenRect.width / oldScreenRect.width;
+      const yRatio = newScreenRect.height / oldScreenRect.height;
+
+      const midPosX = this.frame.x + Math.round(0.5 * this.frame.width);
+      const midPosY = this.frame.y + Math.round(0.5 * this.frame.height);
+
+      this.frame.x = ((midPosX - oldScreenRect.x) * xRatio)
+        + newScreenRect.x - (0.5 * this.frame.width);
+      this.frame.y = ((midPosY - oldScreenRect.y) * yRatio)
+        + newScreenRect.y - (0.5 * this.frame.height);
+
       this.screen(targetScreen);
+      this.set();
     }
     return this;
   }
@@ -178,9 +193,78 @@ class ChainWindow {
 
 }
 
+const fib = (n) => {
+  if (n === 0) {
+    return [0, 1];
+  }
+  const [a, b] = fib(Math.floor(n / 2));
+  const c = a * ((b * 2) - a);
+  const d = (a * a) + (b * b);
+  if (n % 2 === 0) {
+    return [c, d];
+  }
+  return [d, c + d];
+};
+
+const fibonacci = n => (
+  fib(n)[0]
+);
+
 // Chain a Window-object
 Window.prototype.chain = function winChain() {
   return new ChainWindow(this);
+};
+/* eslint-disable */
+Window.prototype.fibonacci = function winFibonacci() {
+  const recentWindows = Window.recent().filter(w => w.isVisible());
+  recentWindows.map((w, index) => {
+    const window = w.chain();
+/*
+  const [curr, next] = fib(recentWindows.length - index + 1) // 6 - 0 + 1
+  const ratio = curr/next;
+
+  let availHeight = screen.height;
+  let availWidth = screen.width;
+  pos = [0, 0];
+  
+  // 1
+  w.height = availHeight;
+  delta = availWidth * ratio;
+  w.width = delta;
+  availWidth -=  delta;
+  pos[0] += delta;
+  
+  // 2
+  w.width = availWidth;
+  delta = availHeight * ratio;
+  w.height = delta;
+  availHeight -= delta;
+  pos[0] += (1 - ratio) * availWidth;
+  pos[1] += delta;
+
+  // 3
+  w.height = availHeight;
+  delta = availWidth * ratio;
+  w.width = delta;
+  pos[0] += (1 - ratio) * availWidth;
+  availWidth -=  delta;
+
+    one = screensize/windowCount
+
+    1 - 0.5   (0.0,  0.0) // h/1 - w/2
+    2 - 0.5   (0.5,  0.0) // h/1 - w/2
+
+    1 - 0.5   (0.0,  0.0) // h/1 - w/2
+    2 - 0.25  (0.5,  0.0) // h/2 - w/2
+    3 - 0.25  (0.5,  0.5) // h/2 - w/2
+
+    1 - 0.5   (0.0,  0.0) // h/1 - w/2
+    2 - 0.25  (0.5,  0.0) // h/2 - w/2
+    3 - 0.125 (0.75, 0.5) // h/2 - w/4
+    4 - 0.125 (0.5,  0.5) // h/2 - w/4
+*/
+    return w;
+  });
 };
 
 // To direction in screen
