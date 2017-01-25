@@ -76,29 +76,26 @@ var ChainWindow = function () {
     value: function space(_space) {
       var _this = this;
 
-      var allSpaces = Space.all();
-      var normalSpaces = allSpaces.filter(function (s) {
+      var normalSpaces = Space.all().filter(function (s) {
         return s.isNormal();
       });
       if (_space <= normalSpaces.length) {
         var targetSpace = normalSpaces[_space - 1];
         var targetScreen = targetSpace.screens()[0];
-        allSpaces.map(function (s) {
+
+        this.window.setFullScreen(false);
+        this.window.spaces().map(function (s) {
           return s.removeWindows([_this.window]);
         });
         targetSpace.addWindows([this.window]);
 
-        var oldScreenRect = this.window.screen().visibleFrameInRectangle();
-        var newScreenRect = targetScreen.visibleFrameInRectangle();
-        var xRatio = newScreenRect.width / oldScreenRect.width;
-        var yRatio = newScreenRect.height / oldScreenRect.height;
+        var prevScreen = this.window.screen().visibleFrame();
+        var nextScreen = targetScreen.visibleFrame();
+        var xRatio = nextScreen.width / prevScreen.width;
+        var yRatio = nextScreen.height / prevScreen.height;
 
-        var midPosX = this.frame.x + Math.round(0.5 * this.frame.width);
-        var midPosY = this.frame.y + Math.round(0.5 * this.frame.height);
-
-        this.frame.x = (midPosX - oldScreenRect.x) * xRatio + newScreenRect.x - 0.5 * this.frame.width;
-        this.frame.y = (midPosY - oldScreenRect.y) * yRatio + newScreenRect.y - 0.5 * this.frame.height;
-
+        this.frame.x = nextScreen.x + (this.frame.x - prevScreen.x) * xRatio + (1 - xRatio) * Math.round(0.5 * this.frame.width);
+        this.frame.y = nextScreen.y + (this.frame.y - prevScreen.y) * yRatio + (1 - yRatio) * Math.round(0.5 * this.frame.height);
         this.screen(targetScreen);
         this.set();
       }
@@ -114,10 +111,12 @@ var ChainWindow = function () {
 
       // X-coordinate
       switch (direction) {
-        case NW:case SW:
+        case NW:
+        case SW:
           this.frame.x = this.parent.x + this.margin;
           break;
-        case NE:case SE:
+        case NE:
+        case SE:
           this.frame.x = this.parent.x + difference.width - this.margin;
           break;
         case CENTER:
@@ -129,10 +128,12 @@ var ChainWindow = function () {
 
       // Y-coordinate
       switch (direction) {
-        case NW:case NE:
+        case NW:
+        case NE:
           this.frame.y = this.parent.y + this.margin;
           break;
-        case SE:case SW:
+        case SE:
+        case SW:
           this.frame.y = this.parent.y + difference.height - this.margin;
           break;
         case CENTER:
@@ -237,9 +238,11 @@ var ChainWindow = function () {
       }
       switch (direction) {
         case LEFT:
-          this.to(NW);break;
+          this.to(NW);
+          break;
         case RIGHT:
-          this.to(NE);break;
+          this.to(NE);
+          break;
         default:
           this.to(NW);
       }
@@ -284,49 +287,41 @@ Window.prototype.fibonacci = function winFibonacci() {
   recentWindows.map(function (w, index) {
     var window = w.chain();
     /*
-      const [curr, next] = fib(recentWindows.length - index + 1) // 6 - 0 + 1
-      const ratio = curr/next;
-    
+     const [curr, next] = fib(recentWindows.length - index + 1) // 6 - 0 + 1
+     const ratio = curr/next;
       let availHeight = screen.height;
-      let availWidth = screen.width;
-      pos = [0, 0];
-      
+     let availWidth = screen.width;
+     pos = [0, 0];
       // 1
-      w.height = availHeight;
-      delta = availWidth * ratio;
-      w.width = delta;
-      availWidth -=  delta;
-      pos[0] += delta;
-      
+     w.height = availHeight;
+     delta = availWidth * ratio;
+     w.width = delta;
+     availWidth -=  delta;
+     pos[0] += delta;
       // 2
-      w.width = availWidth;
-      delta = availHeight * ratio;
-      w.height = delta;
-      availHeight -= delta;
-      pos[0] += (1 - ratio) * availWidth;
-      pos[1] += delta;
-    
+     w.width = availWidth;
+     delta = availHeight * ratio;
+     w.height = delta;
+     availHeight -= delta;
+     pos[0] += (1 - ratio) * availWidth;
+     pos[1] += delta;
       // 3
-      w.height = availHeight;
-      delta = availWidth * ratio;
-      w.width = delta;
-      pos[0] += (1 - ratio) * availWidth;
-      availWidth -=  delta;
-    
-        one = screensize/windowCount
-    
-        1 - 0.5   (0.0,  0.0) // h/1 - w/2
-        2 - 0.5   (0.5,  0.0) // h/1 - w/2
-    
-        1 - 0.5   (0.0,  0.0) // h/1 - w/2
-        2 - 0.25  (0.5,  0.0) // h/2 - w/2
-        3 - 0.25  (0.5,  0.5) // h/2 - w/2
-    
-        1 - 0.5   (0.0,  0.0) // h/1 - w/2
-        2 - 0.25  (0.5,  0.0) // h/2 - w/2
-        3 - 0.125 (0.75, 0.5) // h/2 - w/4
-        4 - 0.125 (0.5,  0.5) // h/2 - w/4
-    */
+     w.height = availHeight;
+     delta = availWidth * ratio;
+     w.width = delta;
+     pos[0] += (1 - ratio) * availWidth;
+     availWidth -=  delta;
+      one = screensize/windowCount
+      1 - 0.5   (0.0,  0.0) // h/1 - w/2
+     2 - 0.5   (0.5,  0.0) // h/1 - w/2
+      1 - 0.5   (0.0,  0.0) // h/1 - w/2
+     2 - 0.25  (0.5,  0.0) // h/2 - w/2
+     3 - 0.25  (0.5,  0.5) // h/2 - w/2
+      1 - 0.5   (0.0,  0.0) // h/1 - w/2
+     2 - 0.25  (0.5,  0.0) // h/2 - w/2
+     3 - 0.125 (0.75, 0.5) // h/2 - w/4
+     4 - 0.125 (0.5,  0.5) // h/2 - w/4
+     */
     return w;
   });
 };
@@ -355,8 +350,7 @@ Window.prototype.fill = function winFill(direction, screen) {
 };
 
 Window.prototype.moveToSpace = function winToSpace(space) {
-  var window = this.chain();
-  return window.space(space).set();
+  return this.chain().space(space).set();
 };
 
 // Resize by factor

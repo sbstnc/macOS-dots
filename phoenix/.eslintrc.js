@@ -10,6 +10,7 @@ module.exports = {
         "no-mixed-operators": [
             "off", {"allowSamePrecedence": false},
         ],
+        "max-len": "off",
     },
     "globals": {
         "Window": true,

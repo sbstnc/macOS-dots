@@ -50,29 +50,27 @@ class ChainWindow {
 
   // Move window to space
   space(space) {
-    const allSpaces = Space.all();
-    const normalSpaces = allSpaces.filter(s => s.isNormal());
+    const normalSpaces = Space.all().filter(s => s.isNormal());
     if (space <= normalSpaces.length) {
       const targetSpace = normalSpaces[space - 1];
       const targetScreen = targetSpace.screens()[0];
-      allSpaces.map(s => s.removeWindows([this.window]));
+
+      this.window.setFullScreen(false);
+      this.window.spaces().map(s => s.removeWindows([this.window]));
       targetSpace.addWindows([this.window]);
 
-      const oldScreenRect = this.window.screen().visibleFrameInRectangle();
-      const newScreenRect = targetScreen.visibleFrameInRectangle();
-      const xRatio = newScreenRect.width / oldScreenRect.width;
-      const yRatio = newScreenRect.height / oldScreenRect.height;
+      const prevScreen = this.window.screen().visibleFrame();
+      const nextScreen = targetScreen.visibleFrame();
+      const xRatio = nextScreen.width / prevScreen.width;
+      const yRatio = nextScreen.height / prevScreen.height;
 
-      const midPosX = this.frame.x + Math.round(0.5 * this.frame.width);
-      const midPosY = this.frame.y + Math.round(0.5 * this.frame.height);
-
-      this.frame.x = ((midPosX - oldScreenRect.x) * xRatio)
-        + newScreenRect.x - (0.5 * this.frame.width);
-      this.frame.y = ((midPosY - oldScreenRect.y) * yRatio)
-        + newScreenRect.y - (0.5 * this.frame.height);
-
+      this.frame.x = nextScreen.x
+        + (this.frame.x - prevScreen.x) * xRatio
+        + (1 - xRatio) * Math.round(0.5 * this.frame.width);
+      this.frame.y = nextScreen.y
+        + (this.frame.y - prevScreen.y) * yRatio
+        + (1 - yRatio) * Math.round(0.5 * this.frame.height);
       this.screen(targetScreen);
-      this.set();
     }
     return this;
   }
@@ -83,10 +81,12 @@ class ChainWindow {
 
     // X-coordinate
     switch (direction) {
-      case NW: case SW:
+      case NW:
+      case SW:
         this.frame.x = this.parent.x + this.margin;
         break;
-      case NE: case SE:
+      case NE:
+      case SE:
         this.frame.x = (this.parent.x + difference.width) - this.margin;
         break;
       case CENTER:
@@ -98,10 +98,12 @@ class ChainWindow {
 
     // Y-coordinate
     switch (direction) {
-      case NW: case NE:
+      case NW:
+      case NE:
         this.frame.y = this.parent.y + this.margin;
         break;
-      case SE: case SW:
+      case SE:
+      case SW:
         this.frame.y = (this.parent.y + difference.height) - this.margin;
         break;
       case CENTER:
@@ -123,15 +125,15 @@ class ChainWindow {
     switch (Math.sign(stepX + stepY)) {
       case -1: // move left or up
         this.frame.x = Math.max(this.frame.x + stepX,
-                              this.parent.x + this.margin);
+          this.parent.x + this.margin);
         this.frame.y = Math.max(this.frame.y + stepY,
-                                this.parent.y + this.margin);
+          this.parent.y + this.margin);
         break;
       case 1: // move right or down
         this.frame.x = Math.min(this.frame.x + stepX,
-                              (this.parent.x + difference.width) - this.margin);
+          (this.parent.x + difference.width) - this.margin);
         this.frame.y = Math.min(this.frame.y + stepY,
-                              (this.parent.y + difference.height) - this.margin);
+          (this.parent.y + difference.height) - this.margin);
         break;
       default:
     }
@@ -143,12 +145,12 @@ class ChainWindow {
     const difference = this.difference();
     if (factor.width != null) {
       const delta = Math.min(this.parent.width * factor.width,
-                             (difference.x + difference.width) - this.margin);
+        (difference.x + difference.width) - this.margin);
       this.frame.width += delta;
     }
     if (factor.height != null) {
       const delta = Math.min(this.parent.height * factor.height,
-                    (difference.height - this.frame.y) + this.margin + HIDDEN_DOCK_MARGIN);
+        (difference.height - this.frame.y) + this.margin + HIDDEN_DOCK_MARGIN);
       this.frame.height += delta;
     }
     return this;
@@ -175,118 +177,63 @@ class ChainWindow {
   // Fit to screen
   fit() {
     const difference = this.difference();
-    if (difference.width < 0 || difference.height < 0) { this.maximize(); }
+    if (difference.width < 0 || difference.height < 0) {
+      this.maximize();
+    }
     return this;
   }
 
   // Fill relatively to LEFT or RIGHT-side of screen, or fill whole screen
   fill(direction) {
     this.maximize();
-    if ([LEFT, RIGHT].includes(direction)) { this.halve(); }
+    if ([LEFT, RIGHT].includes(direction)) {
+      this.halve();
+    }
     switch (direction) {
-      case LEFT: this.to(NW); break;
-      case RIGHT: this.to(NE); break;
-      default: this.to(NW);
+      case LEFT:
+        this.to(NW);
+        break;
+      case RIGHT:
+        this.to(NE);
+        break;
+      default:
+        this.to(NW);
     }
     return this;
   }
 
 }
 
-const fib = (n) => {
-  if (n === 0) {
-    return [0, 1];
-  }
-  const [a, b] = fib(Math.floor(n / 2));
-  const c = a * ((b * 2) - a);
-  const d = (a * a) + (b * b);
-  if (n % 2 === 0) {
-    return [c, d];
-  }
-  return [d, c + d];
-};
-
-const fibonacci = n => (
-  fib(n)[0]
-);
-
 // Chain a Window-object
 Window.prototype.chain = function winChain() {
   return new ChainWindow(this);
-};
-/* eslint-disable */
-Window.prototype.fibonacci = function winFibonacci() {
-  const recentWindows = Window.recent().filter(w => w.isVisible());
-  recentWindows.map((w, index) => {
-    const window = w.chain();
-/*
-  const [curr, next] = fib(recentWindows.length - index + 1) // 6 - 0 + 1
-  const ratio = curr/next;
-
-  let availHeight = screen.height;
-  let availWidth = screen.width;
-  pos = [0, 0];
-  
-  // 1
-  w.height = availHeight;
-  delta = availWidth * ratio;
-  w.width = delta;
-  availWidth -=  delta;
-  pos[0] += delta;
-  
-  // 2
-  w.width = availWidth;
-  delta = availHeight * ratio;
-  w.height = delta;
-  availHeight -= delta;
-  pos[0] += (1 - ratio) * availWidth;
-  pos[1] += delta;
-
-  // 3
-  w.height = availHeight;
-  delta = availWidth * ratio;
-  w.width = delta;
-  pos[0] += (1 - ratio) * availWidth;
-  availWidth -=  delta;
-
-    one = screensize/windowCount
-
-    1 - 0.5   (0.0,  0.0) // h/1 - w/2
-    2 - 0.5   (0.5,  0.0) // h/1 - w/2
-
-    1 - 0.5   (0.0,  0.0) // h/1 - w/2
-    2 - 0.25  (0.5,  0.0) // h/2 - w/2
-    3 - 0.25  (0.5,  0.5) // h/2 - w/2
-
-    1 - 0.5   (0.0,  0.0) // h/1 - w/2
-    2 - 0.25  (0.5,  0.0) // h/2 - w/2
-    3 - 0.125 (0.75, 0.5) // h/2 - w/4
-    4 - 0.125 (0.5,  0.5) // h/2 - w/4
-*/
-    return w;
-  });
 };
 
 // To direction in screen
 Window.prototype.to = function winTo(direction, screen) {
   const window = this.chain();
-  if (screen != null) { window.screen(screen).fit(); }
+  if (screen != null) {
+    window.screen(screen).fit();
+  }
   return window.to(direction).set();
 };
 
 // Fill in screen
 Window.prototype.fill = function winFill(direction, screen) {
   const window = this.chain();
-  if (screen != null) { window.screen(screen); }
+  if (screen != null) {
+    window.screen(screen);
+  }
   window.fill(direction).set();
   // Ensure position for windows larger than expected
-  if (direction === RIGHT) { return window.to(NE).set(); }
+  if (direction === RIGHT) {
+    return window.to(NE).set();
+  }
   return window;
 };
 
 Window.prototype.moveToSpace = function winToSpace(space) {
-  const window = this.chain();
-  return window.space(space).set();
+  return this.chain().space(space).set();
 };
 
 // Resize by factor
@@ -380,21 +327,21 @@ Key.on('p', CONTROL_ALT_SHIFT, () => {
 
 // Size Bindings
 
-Key.on('l', CONTROL_SHIFT, () => guard(Window.focused(), x => x.move({ width: MOVE_BY })));
+Key.on('l', CONTROL_SHIFT, () => guard(Window.focused(), x => x.move({width: MOVE_BY})));
 
-Key.on('h', CONTROL_SHIFT, () => guard(Window.focused(), x => x.move({ width: -MOVE_BY })));
+Key.on('h', CONTROL_SHIFT, () => guard(Window.focused(), x => x.move({width: -MOVE_BY})));
 
-Key.on('j', CONTROL_SHIFT, () => guard(Window.focused(), x => x.move({ height: MOVE_BY })));
+Key.on('j', CONTROL_SHIFT, () => guard(Window.focused(), x => x.move({height: MOVE_BY})));
 
-Key.on('k', CONTROL_SHIFT, () => guard(Window.focused(), x => x.move({ height: -MOVE_BY })));
+Key.on('k', CONTROL_SHIFT, () => guard(Window.focused(), x => x.move({height: -MOVE_BY})));
 
-Key.on('l', CONTROL_ALT_SHIFT, () => guard(Window.focused(), x => x.resize({ width: INCREMENT })));
+Key.on('l', CONTROL_ALT_SHIFT, () => guard(Window.focused(), x => x.resize({width: INCREMENT})));
 
-Key.on('h', CONTROL_ALT_SHIFT, () => guard(Window.focused(), x => x.resize({ width: -INCREMENT })));
+Key.on('h', CONTROL_ALT_SHIFT, () => guard(Window.focused(), x => x.resize({width: -INCREMENT})));
 
-Key.on('j', CONTROL_ALT_SHIFT, () => guard(Window.focused(), x => x.resize({ height: INCREMENT })));
+Key.on('j', CONTROL_ALT_SHIFT, () => guard(Window.focused(), x => x.resize({height: INCREMENT})));
 
-Key.on('k', CONTROL_ALT_SHIFT, () => guard(Window.focused(), x => x.resize({ height: -INCREMENT })));
+Key.on('k', CONTROL_ALT_SHIFT, () => guard(Window.focused(), x => x.resize({height: -INCREMENT})));
 
 // Focus Bindings
 
