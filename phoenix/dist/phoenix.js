@@ -1,7 +1,5 @@
 'use strict';
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -97,7 +95,6 @@ var ChainWindow = function () {
         this.frame.x = nextScreen.x + (this.frame.x - prevScreen.x) * xRatio + (1 - xRatio) * Math.round(0.5 * this.frame.width);
         this.frame.y = nextScreen.y + (this.frame.y - prevScreen.y) * yRatio + (1 - yRatio) * Math.round(0.5 * this.frame.height);
         this.screen(targetScreen);
-        this.set();
       }
       return this;
     }
@@ -253,77 +250,11 @@ var ChainWindow = function () {
   return ChainWindow;
 }();
 
-var fib = function fib(n) {
-  if (n === 0) {
-    return [0, 1];
-  }
-
-  var _fib = fib(Math.floor(n / 2)),
-      _fib2 = _slicedToArray(_fib, 2),
-      a = _fib2[0],
-      b = _fib2[1];
-
-  var c = a * (b * 2 - a);
-  var d = a * a + b * b;
-  if (n % 2 === 0) {
-    return [c, d];
-  }
-  return [d, c + d];
-};
-
-var fibonacci = function fibonacci(n) {
-  return fib(n)[0];
-};
-
 // Chain a Window-object
+
+
 Window.prototype.chain = function winChain() {
   return new ChainWindow(this);
-};
-/* eslint-disable */
-Window.prototype.fibonacci = function winFibonacci() {
-  var recentWindows = Window.recent().filter(function (w) {
-    return w.isVisible();
-  });
-  recentWindows.map(function (w, index) {
-    var window = w.chain();
-    /*
-     const [curr, next] = fib(recentWindows.length - index + 1) // 6 - 0 + 1
-     const ratio = curr/next;
-      let availHeight = screen.height;
-     let availWidth = screen.width;
-     pos = [0, 0];
-      // 1
-     w.height = availHeight;
-     delta = availWidth * ratio;
-     w.width = delta;
-     availWidth -=  delta;
-     pos[0] += delta;
-      // 2
-     w.width = availWidth;
-     delta = availHeight * ratio;
-     w.height = delta;
-     availHeight -= delta;
-     pos[0] += (1 - ratio) * availWidth;
-     pos[1] += delta;
-      // 3
-     w.height = availHeight;
-     delta = availWidth * ratio;
-     w.width = delta;
-     pos[0] += (1 - ratio) * availWidth;
-     availWidth -=  delta;
-      one = screensize/windowCount
-      1 - 0.5   (0.0,  0.0) // h/1 - w/2
-     2 - 0.5   (0.5,  0.0) // h/1 - w/2
-      1 - 0.5   (0.0,  0.0) // h/1 - w/2
-     2 - 0.25  (0.5,  0.0) // h/2 - w/2
-     3 - 0.25  (0.5,  0.5) // h/2 - w/2
-      1 - 0.5   (0.0,  0.0) // h/1 - w/2
-     2 - 0.25  (0.5,  0.0) // h/2 - w/2
-     3 - 0.125 (0.75, 0.5) // h/2 - w/4
-     4 - 0.125 (0.5,  0.5) // h/2 - w/4
-     */
-    return w;
-  });
 };
 
 // To direction in screen
