@@ -59,17 +59,17 @@ class ChainWindow {
       this.window.spaces().map(s => s.removeWindows([this.window]));
       targetSpace.addWindows([this.window]);
 
-      const prevScreen = this.window.screen().visibleFrame();
-      const nextScreen = targetScreen.visibleFrame();
+      const prevScreen = this.window.screen().visibleFrameInRectangle();
+      const nextScreen = targetScreen.visibleFrameInRectangle();
       const xRatio = nextScreen.width / prevScreen.width;
       const yRatio = nextScreen.height / prevScreen.height;
 
       this.frame.x = nextScreen.x
         + (this.frame.x - prevScreen.x) * xRatio
-        + (1 - xRatio) * Math.round(0.5 * this.frame.width);
+        + (xRatio - 1) * Math.round(0.5 * this.frame.width);
       this.frame.y = nextScreen.y
         + (this.frame.y - prevScreen.y) * yRatio
-        + (1 - yRatio) * Math.round(0.5 * this.frame.height);
+        + (yRatio - 1) * Math.round(0.5 * this.frame.height);
       this.screen(targetScreen);
     }
     return this;

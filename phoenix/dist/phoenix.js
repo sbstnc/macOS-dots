@@ -87,13 +87,13 @@ var ChainWindow = function () {
         });
         targetSpace.addWindows([this.window]);
 
-        var prevScreen = this.window.screen().visibleFrame();
-        var nextScreen = targetScreen.visibleFrame();
+        var prevScreen = this.window.screen().visibleFrameInRectangle();
+        var nextScreen = targetScreen.visibleFrameInRectangle();
         var xRatio = nextScreen.width / prevScreen.width;
         var yRatio = nextScreen.height / prevScreen.height;
 
-        this.frame.x = nextScreen.x + (this.frame.x - prevScreen.x) * xRatio + (1 - xRatio) * Math.round(0.5 * this.frame.width);
-        this.frame.y = nextScreen.y + (this.frame.y - prevScreen.y) * yRatio + (1 - yRatio) * Math.round(0.5 * this.frame.height);
+        this.frame.x = nextScreen.x + (this.frame.x - prevScreen.x) * xRatio + (xRatio - 1) * Math.round(0.5 * this.frame.width);
+        this.frame.y = nextScreen.y + (this.frame.y - prevScreen.y) * yRatio + (yRatio - 1) * Math.round(0.5 * this.frame.height);
         this.screen(targetScreen);
       }
       return this;
