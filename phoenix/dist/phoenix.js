@@ -87,8 +87,8 @@ var ChainWindow = function () {
         });
         targetSpace.addWindows([this.window]);
 
-        var prevScreen = this.window.screen().visibleFrameInRectangle();
-        var nextScreen = targetScreen.visibleFrameInRectangle();
+        var prevScreen = this.window.screen().flippedVisibleFrame();
+        var nextScreen = targetScreen.flippedVisibleFrame();
         var xRatio = nextScreen.width / prevScreen.width;
         var yRatio = nextScreen.height / prevScreen.height;
 
