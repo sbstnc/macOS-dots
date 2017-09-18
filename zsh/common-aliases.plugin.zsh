@@ -3,7 +3,7 @@
 #
 
 # ls, the common ones I use a lot shortened for rapid fire usage
-alias ls='exa -1'   #one entry per line
+alias ls='exa'   #one entry per line
 alias l='exa -lg'   #extended metadata,group
 alias la='exa -alg' #show almost all,extended info,with group
 alias lr='exa -R --sort=modified' #sorted by date,recursive
