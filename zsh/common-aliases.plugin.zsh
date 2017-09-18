@@ -8,7 +8,7 @@ alias l='exa -lg'   #extended metadata,group
 alias la='exa -alg' #show almost all,extended info,with group
 alias lr='exa -R --sort=modified' #sorted by date,recursive
 alias lt='exa -lg --sort=modified' #sorted by date,recursive
-alias ll='ls -lg'      #long list
+alias ll='exa -lg'      #long list
 alias lS='exa -1 --sort=size'
 
 alias zshrc='$EDITOR ~/.zshrc' # Quick access to the ~/.zshrc file
