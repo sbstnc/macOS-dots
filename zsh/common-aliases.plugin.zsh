@@ -3,6 +3,13 @@
 #
 
 # ls, the common ones I use a lot shortened for rapid fire usage
+alias e='exa -lg'   #extended metadata,group
+alias ea='exa -alg' #show almost all,extended info,with group
+alias er='exa -R --sort=modified' #sorted by date,recursive
+alias et='exa -lg --sort=modified' #sorted by date,recursive
+alias el='exa -lg'      #long list
+alias eS='exa -1 --sort=size'
+
 alias ls='exa'   #one entry per line
 alias l='exa -lg'   #extended metadata,group
 alias la='exa -alg' #show almost all,extended info,with group
